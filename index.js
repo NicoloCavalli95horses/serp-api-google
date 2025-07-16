@@ -13,10 +13,12 @@ import path from 'path';
 const __dirname = import.meta.dirname;
 
 const config = {
-  location: "United States",
+  location: "France",
+  hl: "fr",
+  gl: "fr",
   engine: "google",
   api_key: process.env.API_KEY,
-  num: 50,
+  num: 100,
 }
 const excluded_domains = `
   -site:x.com
@@ -28,6 +30,7 @@ const excluded_domains = `
   -site:quora.com
   -site:play.google.com
   -site:apps.apple.com
+  -site:.edu
 `;
 
 const queries = [
@@ -42,6 +45,7 @@ const CATEGORIES = [
   'graphic design'
 ];
 
+const domains = new Set();
 const allRows = [["Id", "Category", "Title", "Link"]];
 
 
@@ -58,7 +62,7 @@ async function fetchData( {q} ) {
 function saveCSV() {
   const csvContent = allRows.map(row => row.map(value => `"${value}"`).join(",")).join("\n");
   fs.writeFileSync(path.join(__dirname, "output.csv"), csvContent, "utf8");
-  console.log("CSV saved in:", path.join(__dirname, "output.csv"));
+  console.log("✅ CSV saved in:", path.join(__dirname, "output.csv"));
 }
 
 async function main() {
@@ -83,13 +87,27 @@ async function main() {
   
       if (res.duration) { continue; } // skip video results
       
-      const category = CATEGORIES[i];
-      const id = res.position;
-      const title = res.title?.replace(/"/g, '""') || "";
       const link = res.link;
+      const domain = getDomain(link);
+
+      if ( domains.has(domain) ) {
+        continue;
+      } 
+
+      domains.add(link);
+      const category = CATEGORIES[i];
+      const id = category.charAt(0).toUpperCase() + res.position;
+      const title = res.title?.replace(/"/g, '""') || "";
       allRows.push( [id, category, title, link] );
     }
   }
   
   saveCSV();
+}
+
+
+function getDomain(url) {
+  const ret = url.split('.').slice(1);
+  ret.pop();
+  return ret.join("");
 }
