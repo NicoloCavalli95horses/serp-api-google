@@ -10,7 +10,7 @@ import path from 'path';
 //===========================
 // Consts
 //===========================
-const __dirname = import.meta.dirname;
+const dirname = import.meta.dirname;
 
 const config = {
   location: "France",
@@ -61,8 +61,8 @@ async function fetchData( {q} ) {
 
 function saveCSV() {
   const csvContent = allRows.map(row => row.map(value => `"${value}"`).join(",")).join("\n");
-  fs.writeFileSync(path.join(__dirname, "output.csv"), csvContent, "utf8");
-  console.log("✅ CSV saved in:", path.join(__dirname, "output.csv"));
+  fs.writeFileSync(path.join(dirname, "output.csv"), csvContent, "utf8");
+  console.log("✅ CSV saved in:", path.join(dirname, "output.csv"));
 }
 
 async function main() {
